@@ -51,7 +51,7 @@ fn main() {
         _my_vec.push(parse(&input));
     }
     //100000 is a magic number
-    for i in 1..=i32::MAX {
+    for i in 1..= 100000{
         let mut _penatly: u64 = 0;
         for day in &_my_vec {
             _penatly += get_pen(day, i);
