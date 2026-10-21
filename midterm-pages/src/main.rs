@@ -94,7 +94,7 @@ impl LoadPages{
             let day_penalty = day_bk + day_un;
             overall_penatly += day_penalty;
 
-            println!( "Day {:02}| {:>3} programs | bk bits {:>8} |internal frag {:>9} | total Pen {:>7}", i+1, len_prog, day_bk, day_un ,overall_penatly);
+            println!( "Day {:02}| {:>3} programs | bk bits {:>8} |internal frag {:>9} | total Pen {:>7}", i+1, len_prog, day_bk, day_un ,day_penalty);
         }
 
         let avg_pen = (overall_penatly as f64) / Self::BOOKVAL as f64;
