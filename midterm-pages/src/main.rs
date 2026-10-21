@@ -55,7 +55,7 @@ impl LoadPages{
         _pen
     }
 
-    pub fn solve(&self) -> (i32,u64){
+    pub fn solve(&self) -> Vec<(i32,u64)>{
 
         let mut penatly_scores: HashMap<i32, u64> = HashMap::new();
 
@@ -64,12 +64,42 @@ impl LoadPages{
 
             for day in &self.days_load{ _penatly += self.get_pen(day, i); }
 
-            let average = _penatly / (Self::DAYAMOUNT as u64);
-            penatly_scores.insert(i, average);
+            // let average = _penatly / (Self::DAYAMOUNT as u64);
+            penatly_scores.insert(i, _penatly);
         }
 
-        let (_key, _value) = penatly_scores.iter().min_by_key(|entry| entry.1).unwrap();
-        (*_key,*_value)
+        let mut sorted_scores: Vec<(&i32, &u64)> = penatly_scores.iter().collect();
+
+        sorted_scores.sort_by_key(|entry| entry.1);
+        sorted_scores.into_iter().take(3).map(|(k,v)| (*k, *v)).collect()
+    }
+
+    pub fn print(&self, best_page: i32){
+
+        println!("min page size {}", best_page );
+        let mut overall_penatly: u64 = 0;
+        for(i, day) in self.days_load.iter().enumerate(){
+            let mut day_bk: u64 = 0;
+            let mut day_un: u64 = 0;
+            let len_prog = day.len();
+
+            for &req in day {
+                let p = req.div_ceil(best_page as u64);
+                let bk_costt = p * Self::BOOKVAL;
+                let un_cost = (p * best_page as u64) - req;
+
+                day_bk += bk_costt;
+                day_un += un_cost;
+            }
+            let day_penalty = day_bk + day_un;
+            overall_penatly += day_penalty;
+
+            println!( "Day {:02}| {:>3} programs | bk bits {:>8} |internal frag {:>9} | total Pen {:>7}", i+1, len_prog, day_bk, day_un ,overall_penatly);
+        }
+
+        let avg_pen = (overall_penatly as f64) / Self::BOOKVAL as f64;
+        println!("The average penatly was {}" , avg_pen);
+
     }
 
 }
@@ -79,8 +109,16 @@ impl LoadPages{
 fn main() {
     let run_sol = LoadPages::load_f();
 
-    let (bit_num, avg_pen) = run_sol.solve();
-    println!("Bit num:{} \n Penataly_score: {} ",bit_num,avg_pen);
+    let top_num = run_sol.solve();
+
+    for(i, (bit_num, total_pen)) in top_num.iter().enumerate(){
+        let avg_pen = (*total_pen as f64) / LoadPages::DAYAMOUNT;
+        println!("{}. Bit Nums: {} | Average Pen: {:.2}", i+1, bit_num, avg_pen);
+    }
+
+    let(best_bit, _) = top_num[0];
+    run_sol.print(best_bit);
+
 
 
 
