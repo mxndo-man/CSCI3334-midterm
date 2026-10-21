@@ -68,6 +68,8 @@ impl LoadPages {
             // let average = _penatly / (Self::DAYAMOUNT as u64);
             penatly_scores.insert(i, _penatly);
         }
+        // push the hash map into a vector which will get the top 3 that producewd the least amount
+        // of penalty
 
         let mut sorted_scores: Vec<(&i32, &u64)> = penatly_scores.iter().collect();
 
@@ -80,9 +82,14 @@ impl LoadPages {
     }
 
     pub fn print(&self, best_page: i32) {
+        // Essentailly this get the score of the smallest penatly.
+        // it iwll then compute the the bookkeeping bits penalty.
+        // get the internal fragmentaion penalty
+        // the total penalty for that day.
         println!("min page size {}", best_page);
         let mut overall_penatly: u64 = 0;
         for (i, day) in self.days_load.iter().enumerate() {
+            // This is just a repeat of get_pen and solve() but for just one day.
             let mut day_bk: u64 = 0;
             let mut day_un: u64 = 0;
             let len_prog = day.len();
@@ -114,6 +121,8 @@ impl LoadPages {
 }
 
 fn main() {
+    // Main function: restructed compared to the initial commit history.
+    // This version will be used for clean and readability code
     let run_sol = LoadPages::load_f();
 
     let top_num = run_sol.solve();
