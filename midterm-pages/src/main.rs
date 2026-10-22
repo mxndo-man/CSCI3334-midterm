@@ -2,23 +2,23 @@ use std::collections::HashMap;
 use std::fs;
 
 //BOOKBAL is the assigned value in the assignment
-struct LoadPages{
+struct LoadPages {
     days_load: Vec<Vec<u64>>,
 }
 
-impl LoadPages{
+impl LoadPages {
     const BOOKVAL: u64 = 64;
     const DAYAMOUNT: f64 = 32.0;
     const BITVAL: i32 = 100000;
 
-    pub fn load_f() -> Self{
+    pub fn load_f() -> Self {
         let mut days_load = Vec::new();
 
         for day in 1..=32 {
             let input = fs::read_to_string(format!("./workloads/day_{day:02}/loads")).unwrap();
             days_load.push(Self::parse(&input));
         }
-        LoadPages{days_load}
+        LoadPages { days_load }
     }
 
     pub fn parse(input: &str) -> Vec<u64> {
@@ -55,30 +55,41 @@ impl LoadPages{
         _pen
     }
 
-    pub fn solve(&self) -> Vec<(i32,u64)>{
-
+    pub fn solve(&self) -> Vec<(i32, u64)> {
         let mut penatly_scores: HashMap<i32, u64> = HashMap::new();
 
-        for i in 1..= Self::BITVAL {
+        for i in 1..=Self::BITVAL {
             let mut _penatly: u64 = 0;
 
-            for day in &self.days_load{ _penatly += self.get_pen(day, i); }
+            for day in &self.days_load {
+                _penatly += self.get_pen(day, i);
+            }
 
             // let average = _penatly / (Self::DAYAMOUNT as u64);
             penatly_scores.insert(i, _penatly);
         }
+        // push the hash map into a vector which will get the top 3 that producewd the least amount
+        // of penalty
 
         let mut sorted_scores: Vec<(&i32, &u64)> = penatly_scores.iter().collect();
 
         sorted_scores.sort_by_key(|entry| entry.1);
-        sorted_scores.into_iter().take(3).map(|(k,v)| (*k, *v)).collect()
+        sorted_scores
+            .into_iter()
+            .take(3)
+            .map(|(k, v)| (*k, *v))
+            .collect()
     }
 
-    pub fn print(&self, best_page: i32){
-
-        println!("min page size {}", best_page );
+    pub fn print(&self, best_page: i32) {
+        // Essentailly this get the score of the smallest penatly.
+        // it iwll then compute the the bookkeeping bits penalty.
+        // get the internal fragmentaion penalty
+        // the total penalty for that day.
+        println!("min page size {}", best_page);
         let mut overall_penatly: u64 = 0;
-        for(i, day) in self.days_load.iter().enumerate(){
+        for (i, day) in self.days_load.iter().enumerate() {
+            // This is just a repeat of get_pen and solve() but for just one day.
             let mut day_bk: u64 = 0;
             let mut day_un: u64 = 0;
             let len_prog = day.len();
@@ -94,33 +105,39 @@ impl LoadPages{
             let day_penalty = day_bk + day_un;
             overall_penatly += day_penalty;
 
-            println!( "Day {:02}| {:>3} programs | bk bits {:>8} |internal frag {:>9} | total Pen {:>7}", i+1, len_prog, day_bk, day_un ,day_penalty);
+            println!(
+                "Day {:02}| {:>3} programs | bk bits {:>8} |internal frag {:>9} | total Pen {:>7}",
+                i + 1,
+                len_prog,
+                day_bk,
+                day_un,
+                day_penalty
+            );
         }
 
         let avg_pen = (overall_penatly as f64) / Self::DAYAMOUNT as f64;
         println!("The average penatly was {}" , avg_pen);
 
     }
-
 }
 
-
-
 fn main() {
+    // Main function: restructed compared to the initial commit history.
+    // This version will be used for clean and readability code
     let run_sol = LoadPages::load_f();
 
     let top_num = run_sol.solve();
 
-    for(i, (bit_num, total_pen)) in top_num.iter().enumerate(){
+    for (i, (bit_num, total_pen)) in top_num.iter().enumerate() {
         let avg_pen = (*total_pen as f64) / LoadPages::DAYAMOUNT;
-        println!("{}. Bit Nums: {} | Average Pen: {:.2}", i+1, bit_num, avg_pen);
+        println!(
+            "{}. Bit Nums: {} | Average Pen: {:.2}",
+            i + 1,
+            bit_num,
+            avg_pen
+        );
     }
 
-    let(best_bit, _) = top_num[0];
+    let (best_bit, _) = top_num[0];
     run_sol.print(best_bit);
-
-
-
-
-
 }
